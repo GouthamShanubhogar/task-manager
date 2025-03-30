@@ -8,8 +8,21 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  'https://task-manager-six-beryl.vercel.app',
+  'https://task-manager-lr4cnybq1-goutham-shanubhogars-projects.vercel.app',
+  'https://task-manager-goutham-shanubhogars-projects.vercel.app',
+  'http://localhost:5173',
+];
+
 app.use(cors({
-  origin: 'https://task-manager-six-beryl.vercel.app',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
