@@ -59,7 +59,7 @@ Task Manager is a full-stack web application designed to help users manage their
 ### Backend Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/task-manager.git
+   git clone https://github.com/GouthamShanubhogar/task-manager.git
    cd task-manager/backend
    ```
 
@@ -144,19 +144,6 @@ Task Manager is a full-stack web application designed to help users manage their
 ### 5. **State Management**
    - **Challenge**: Managing authentication and task states across the application.
    - **Solution**: Used React Context API to manage global states for authentication and tasks.
-
----
-
-## Screenshots
-
-### Dashboard
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
-
-### Login Page
-![Login Page](https://via.placeholder.com/800x400?text=Login+Page+Screenshot)
-
-### Signup Page
-![Signup Page](https://via.placeholder.com/800x400?text=Signup+Page+Screenshot)
 
 ---
 
