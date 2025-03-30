@@ -25,3 +25,5 @@ dist-ssr
 
 # Ignore all .env files
 *.env
+/backend/.env
+/backend/.env.*

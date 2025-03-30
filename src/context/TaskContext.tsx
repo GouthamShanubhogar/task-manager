@@ -1,17 +1,17 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 interface Task {
   id: string;
   title: string;
   completed: boolean;
-  category ?: string;
+  category?: string;
 }
 
 interface TaskContextType {
   tasks: Task[];
   loading: boolean;
-  addTask: (title: string) => Promise<void>;
+  addTask: (task: { title: string; category: string }) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   fetchTasks: () => Promise<void>;
@@ -20,46 +20,70 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType>({
   tasks: [],
   loading: true,
-  addTask: async () => {},
-  updateTask: async () => {},
-  deleteTask: async () => {},
-  fetchTasks: async () => {},
+  addTask: async () => {}, 
+  updateTask: async () => {}, 
+  deleteTask: async () => {}, 
+  fetchTasks: async () => {}, 
 });
 
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const fetchTasks = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('No token found. Skipping fetchTasks...');
+      setTasks([]); // Clear tasks
+      setLoading(false); // Ensure loading state is updated
+      return;
+    }
 
-  const fetchTasks = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:5000/api/tasks', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);
     } catch (err) {
-      console.error('Failed to fetch tasks:', err);
+      const error = err as any; // Explicitly cast to 'any'
+      console.error('Failed to fetch tasks:', error);
+      if (error.response?.status === 401) {
+        console.error('Unauthorized. Logging out...');
+        localStorage.removeItem('token'); // Clear invalid token
+        setTasks([]); // Clear tasks
+        window.location.href = '/login'; // Redirect to login page
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const addTask = async (title: string) => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchTasks();
+    } else {
+      console.warn('No token found during useEffect. Skipping fetchTasks...');
+      setLoading(false); // Ensure loading state is updated
+    }
+  }, [fetchTasks]);
+
+  const addTask = async ({ title, category }: { title: string; category: string }) => {
     try {
+      if (!title || !category) {
+        throw new Error('Title and category are required');
+      }
       const token = localStorage.getItem('token');
       const response = await axios.post(
         'http://localhost:5000/api/tasks',
-        { title },
+        { title, category },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setTasks([response.data, ...tasks]);
+      setTasks((prevTasks) => [response.data, ...prevTasks]);
     } catch (err) {
-      console.error('Failed to add task:', err);
-      throw err;
+      const error = err as any; // Explicitly cast to 'any'
+      console.error('Failed to add task:', error);
+      throw error;
     }
   };
 
@@ -71,7 +95,9 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         updates,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setTasks(tasks.map(task => task.id === id ? response.data : task));
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === id ? response.data : task))
+      );
     } catch (err) {
       console.error('Failed to update task:', err);
       throw err;
@@ -82,9 +108,9 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`http://localhost:5000/api/tasks/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setTasks(tasks.filter(task => task.id !== id));
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
     } catch (err) {
       console.error('Failed to delete task:', err);
       throw err;
