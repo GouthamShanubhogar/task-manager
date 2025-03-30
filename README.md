@@ -147,11 +147,6 @@ Task Manager is a full-stack web application designed to help users manage their
 
 ---
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
 
 ## Contributing
 
@@ -161,4 +156,4 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 ## Contact
 
-For any questions or feedback, feel free to reach out at [your-email@example.com](mailto:your-email@example.com).
+For any questions or feedback, feel free to reach out at [gouthamgouthu173@gmail.com](mailto:gouthamgouthu173@gmail.com).
